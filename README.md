@@ -10,7 +10,7 @@
 - `issues/YYYY-MM-DD/employee.html`: 一般社員版
 - `issues/YYYY-MM-DD/developer.html`: 開発者版
 
-各版は自立した静的HTMLです。ビルド、JavaScript、外部フォント、解析タグ、第三者の埋め込みは不要です。`.nojekyll` は静的ファイルをそのまま配信するための設定です。
+各版は自立した静的HTMLです。本文の表示にビルド、JavaScript、外部フォントは不要です。公開用HTMLには、利用者が承認したCloudflare Web Analyticsのアクセス解析タグを設置します。Libraryで納品するオフライン用HTMLには解析タグを入れません。`.nojekyll` は静的ファイルをそのまま配信するための設定です。
 
 ## GitHub Pagesへの週次投稿手順
 
@@ -42,6 +42,20 @@ issues/YYYY-MM-DD/developer.html
 
 同じ発行日のフォルダが既にある場合、再実行か訂正かを先に判断します。同一内容なら二重登録せず、配信状況を確認します。内容が異なる場合は既刊の訂正として扱い、説明なしに上書きしません。
 
+### 2A. 公開用コピーにアクセス解析を設置する
+
+トップ、各号の入口、3読者版の公開用HTMLでは、次の利用者指定コードを `</body>` の直前に1回だけ設置します。既存のタグがあれば重複追加せず、同じコードか確認します。過去号を通常の週次追加で書き換える必要はありません。
+
+```html
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "3e31bd763ecc4e89a61bced5a8a4db9f"}'></script><!-- End Cloudflare Web Analytics -->
+```
+
+これは公開サイトの計測用識別子であり、Cloudflareの管理用APIキーではありません。コードは公開用コピーを作る段階だけで追加し、Library納品のオフライン3HTMLとその元データには混入させません。ニュース本文・採点・順位・出典・配色を変えません。JavaScriptが無効でも本文を読める状態を維持します。
+
+毎号の新しい4HTMLとトップの計5HTMLを検査し、解析スクリプトが各1個、`type="module"`、指定URLとtokenが一致することを確認します。タグを除けば元の公開内容が変わらないことも確認します。別の解析サービスや追加の個人識別情報を入れません。
+
+[Cloudflare公式の設置手順](https://developers.cloudflare.com/web-analytics/get-started/)と[公式FAQ](https://developers.cloudflare.com/web-analytics/faq/)を参照します。公開後は実ページのタグとスクリプト読込を確認し、可能ならブラウザーからの計測送信も確認します。検証アクセスも計測に含まれる可能性があるため、必要最小限にします。ダッシュボードへの反映は別途Cloudflare Web Analyticsで確認し、未確認なら「データ受信済み」と報告しません。設置前のアクセスは遡って復元できません。
+
 ### 3. 各版の色にパーツを合わせる
 
 色の正本は、その号の `executive.html`、`employee.html`、`developer.html` です。各HTMLのCSSを確認し、後から上書きされた定義も含む最終的な `--accent` と `--tint` を取得します。先頭の共通 `:root` だけを読んだり、版名から色を推測したりしません。
@@ -64,6 +78,7 @@ issues/YYYY-MM-DD/developer.html
 - [ ] 3版の発行日、対象期間、締切、出典、見出し、目次アンカー、留保に食い違いがない。
 - [ ] トップ、号の入口、3版、過去号の相対リンクとページ内リンクが切れていない。
 - [ ] 各カード・ボタン・版リンクの色が、対応する号の実HTMLの最終色と一致する。
+- [ ] 公開5HTMLのCloudflare Web Analyticsタグが各1個で指定コードと一致し、Library納品用HTMLには存在しない。
 - [ ] 本文と属性・コメント・リンクを含め、公開できない情報や不要な個人情報が混入していない。
 - [ ] PCとスマートフォン幅で折り返し、はみ出し、ボタン、フォーカスを確認する。印刷表示も確認する。未実施の検査を完了と書かない。
 - [ ] 差分は新号4HTMLとトップ `index.html` の計5パスだけ。通常の週次追加でREADME、設定、過去号を変更しない。手順や既刊の変更は別途依頼された範囲だけに限定する。
